@@ -1,0 +1,19 @@
+idf_component_register(
+    SRCS 
+        "main.cpp"
+        "src/StateMachine.cpp"
+        "src/ApplicationController.cpp"
+        "src/JoystickController.cpp"
+        "src/MenuItem.cpp"
+        "src/Menu.cpp"
+        "src/Renderer.cpp"
+        "src/State.cpp"
+    INCLUDE_DIRS 
+        "include"
+    REQUIRES
+        arduino-esp32 
+        List 
+        Adafruit_SSD1306
+        TinyGPSPlus
+        painlessMesh
+)
