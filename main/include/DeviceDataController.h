@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Arduino.h>
+
 #include <List.hpp>
 #include <map>
 #include <string>
@@ -8,8 +10,8 @@
 #include "cJSON.h"
 
 struct DeviceData {
-  long longitude;
-  long latitude;
+  double longitude;
+  double latitude;
   int hour;
   int minute;
   int second;
@@ -52,6 +54,8 @@ struct DeviceData {
         cJSON_PrintUnformatted(root);  // or cJSON_Print() for pretty
     cJSON_Delete(root);                // free the object tree
 
+    ESP_LOGI("DeviceData", "Serialized data before sending: %s", jsonStr);
+
     return jsonStr;  // must be freed by caller
   }
 
@@ -76,12 +80,12 @@ class DeviceDataController {
   DeviceDataController();
   void addDeviceData(uint32_t userId, const DeviceData& DeviceData);
   const char* updateMessage() const;
-  void updateData(long lon, long lat, int h, int m, int s);
+  void updateData(double lon, double lat, int h, int m, int s);
   void setDeviceId(uint32_t id);
 
  private:
   std::map<uint32_t, DeviceData> m_data;
   std::map<uint32_t, std::string> m_usernames;
   DeviceData m_deviceData;
-  uint32_t m_deviceId;
+  uint32_t m_deviceId{0};
 };

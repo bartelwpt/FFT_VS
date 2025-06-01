@@ -29,7 +29,7 @@ const char *ApplicationController::prepareMessage() {
   return m_ddController->updateMessage();
 }
 
-void ApplicationController::updateGpsData(long lon, long lat, int h, int m,
+void ApplicationController::updateGpsData(double lon, double lat, int h, int m,
                                           int s) {
   m_ddController->updateData(lon, lat, h, m, s);
 }

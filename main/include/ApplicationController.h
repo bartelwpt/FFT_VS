@@ -16,7 +16,7 @@ class ApplicationController {
   void receiveMessage(uint32_t id, const char *msg);
   void run();
   void setDeviceId(uint32_t id);
-  void updateGpsData(long lon, long lat, int h, int m, int s);
+  void updateGpsData(double lon, double lat, int h, int m, int s);
   const char *prepareMessage();
 
  private:

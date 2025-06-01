@@ -1,7 +1,5 @@
 #include "DeviceDataController.h"
 
-#include <Arduino.h>
-
 #include <ctime>
 static const char* TAG = "DeviceController";
 
@@ -12,18 +10,20 @@ DeviceDataController::DeviceDataController() {
 
 void DeviceDataController::addDeviceData(uint32_t userId,
                                          const DeviceData& data) {
-  if (m_data.contains(userId) && !data.isNewer(m_data[userId])) {
+  if ((m_data.contains(userId) && !data.isNewer(m_data[userId])) ||
+      userId == 0) {
     // Our existing data is more recent
     return;
   }
 
-  ESP_LOGI(TAG, "New data from %s: lon=%.6ld lat=%.6ld",
+  ESP_LOGI(TAG, "New data from %s: lon=%.6f lat=%.6f",
            m_usernames[userId].c_str(), data.longitude, data.latitude);
 
   m_data[userId] = data;
 }
 
-void DeviceDataController::updateData(long lat, long lon, int h, int m, int s) {
+void DeviceDataController::updateData(double lat, double lon, int h, int m,
+                                      int s) {
   m_deviceData.latitude = lat;
   m_deviceData.longitude = lon;
   m_deviceData.hour = h;
