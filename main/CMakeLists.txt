@@ -8,6 +8,7 @@ idf_component_register(
         "src/Menu.cpp"
         "src/Renderer.cpp"
         "src/State.cpp"
+        "src/DeviceDataController.cpp"
     INCLUDE_DIRS 
         "include"
     REQUIRES
@@ -16,4 +17,5 @@ idf_component_register(
         Adafruit_SSD1306
         TinyGPSPlus
         painlessMesh
+        json
 )

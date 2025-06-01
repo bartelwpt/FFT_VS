@@ -4,21 +4,25 @@
 #include <JoystickController.h>
 #include <Menu.h>
 #include <StateMachine.h>
-
+#include "DeviceDataController.h"
 #define SCREEN_ADDRESS 0x3C 
 
 class ApplicationController {
 public:
   ApplicationController(Adafruit_SSD1306 *display, JoystickController *jController, StateMachine * stateMachine);
+  void receiveMessage(uint32_t id, const char *msg);
   void run();
+  void setDeviceId(uint32_t id);
+  void updateGpsData(long lon, long lat, int h, int m, int s);
+  const char* prepareMessage();
 
 private:
   Adafruit_SSD1306 *m_display;
   JoystickController *m_jController;
-  Menu *m_menu;
   StateMachine *m_stateMachine;
 
-  bool m_started;
+  DeviceDataController *m_ddController{new DeviceDataController()};
+  bool m_started{false};
 };
 
 

@@ -3,17 +3,17 @@
 
 class State {
 public:
-  State(int id, char * name, void (*callback)());
+  State(int id, const char * name, void (*callback)());
 
   void run();
   const char * name();
-  const int id();
+  int id();
   bool finished();
 
 private: 
   int m_id;
   bool m_finished;
-  char * m_name;
+  const char * m_name;
   Adafruit_SSD1306 * m_display;
   void (*m_callback)();
 };

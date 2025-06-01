@@ -3,16 +3,15 @@
 #include <Arduino.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <ApplicationController.h>
 #include <List.hpp>
 #include <SPI.h>
 #include <Wire.h>
 #include <TinyGPSPlus.h>
 #include <painlessMesh.h>
 
-
-#include <State.h>
-#include <StateMachine.h>
+#include "ApplicationController.h"
+#include "State.h"
+#include "StateMachine.h"
 
 #define OLED_RESET      -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 #define JOYSTICK_MID    16
@@ -28,6 +27,7 @@
 #define GPS_TX 27
 
 static const char *TAG = "FestivalFriendTracker";
+static int msgCounter = 0;
 
 /* TASK DECLARATION */
 void AppTask( void *pvParameters );
@@ -50,6 +50,7 @@ StateMachine stateMachine;
 Menu *menu;
 List<MenuItem*> menuItemList;
 List<State*> stateList;
+String msgBuf;
 
 painlessMesh mesh;
 
@@ -69,6 +70,7 @@ void btnTestMenuItemCallback() {
   stateMachine.setCurrentState(buttonTestState.id());
 }
 void nwTestMenuItemCallback() {
+  ESP_LOGI(TAG, "nwTestMenuItemCallback, setting stateMachine to state networkState");
   stateMachine.setCurrentState(networkTestState.id());
 }
 
@@ -113,6 +115,7 @@ void initStateMachine() {
   stateList.add(&buttonTestState);
   stateList.add(&menuState);
   stateList.add(&gpsTestState);
+  stateList.add(&networkTestState);
   stateMachine.addStates(stateList);
   stateMachine.setCurrentState(menuState.id());
 }
@@ -134,7 +137,7 @@ void initJoystick() {
 void initMesh() {
   ESP_LOGI(TAG, "Starting mesh network ...");
   mesh.setDebugMsgTypes( ERROR | STARTUP );
-  mesh.init("Test-SSID", "1234");
+  mesh.init("Test-SSID", "1234567890");
   mesh.onReceive(&receieveCallback);
   mesh.onNewConnection(&newConnectionCallback);
   mesh.onChangedConnections(&changedConnectionCallback);
@@ -147,7 +150,8 @@ void receieveCallback(uint32_t from, String &msg)
 {
   // do something
   ESP_LOGI(TAG, "received message from %" PRIu32 ": %s", from, msg.c_str());
-}
+  appController.receiveMessage(from, msg.c_str())
+;}
 
 void newConnectionCallback(uint32_t nodeId)
 { 
@@ -159,7 +163,7 @@ void changedConnectionCallback() {
 }
 
 void nodeTimeAdjustedCallback(int32_t offset) {
-    ESP_LOGI(TAG, "Adjusted time %" PRIu32 ". Offset = %"PRIi32, mesh.getNodeTime(), offset);
+    ESP_LOGI(TAG, "Adjusted time %" PRIu32 ". Offset = %" PRIi32, mesh.getNodeTime(), offset);
 }
 
 
@@ -226,23 +230,23 @@ void networkTest() {
     jController.setMid(false);
   }
 
+  display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
-  display.setCursor(32,32);
-  display.clearDisplay();
+  display.setCursor(2,32);
   display.println("NETWORKTEST");
+  display.printf("RX: %s", msgBuf.c_str());
   display.display();
 
 
   if (jController.mid()) {
     jController.setMid(false);
     jController.lock();
-    display.clearDisplay();
-    display.setCursor(2,32);
-    display.println("back to menu");
-    display.display();
-    delay(2000);
-    stateMachine.setCurrentState(menuState.id());
+    ESP_LOGI(TAG, "Send broadcast test message");
+    char buffer[50];
+    sprintf(buffer, "Message #%d", msgCounter++);
+    mesh.sendBroadcast(buffer);
+    jController.unlock();
   }
 }
 
@@ -291,6 +295,7 @@ void GPSTask( void *pvParameters) {
       gps.encode(gpsSerial.read());
     }
 
+    appController.updateGpsData(gps.location.lng(), gps.location.lat(), gps.time.hour(), gps.time.minute(), gps.time.second());
     vTaskDelay(pdMS_TO_TICKS(10));
   }
 }
@@ -299,6 +304,8 @@ void meshTask( void *pvParameters) {
   (void) pvParameters;
   while(true) {
     mesh.update();
+    mesh.sendBroadcast(appController.prepareMessage());
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
 
@@ -311,11 +318,13 @@ extern "C" void app_main()
       Serial.println(F("SSD1306 allocation failed"));
       for(;;);
     }
-
     initJoystick();
     initMenu();
     initStateMachine();
     initMesh();
+
+    ESP_LOGI(TAG, "ChipId: %" PRIu32, mesh.getNodeId());
+
 
     gpsSerial.begin(9600, SERIAL_8N1, GPS_RX, GPS_TX);
 

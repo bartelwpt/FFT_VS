@@ -1,6 +1,6 @@
 #include <State.h>
 
-State::State(int id, char * name, void (*callback)()) : m_id(id), m_name(name), m_callback(callback) {
+State::State(int id, const char * name, void (*callback)()) : m_id(id), m_name(name), m_callback(callback) {
   m_finished = false;
 }
 
@@ -12,7 +12,7 @@ const char * State::name() {
   return m_name;
 }
 
-const int State::id() {
+int State::id() {
   return m_id;
 }
 
