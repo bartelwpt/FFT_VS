@@ -1,20 +1,11 @@
 #pragma once
-
-#include <Arduino.h>
-
-#include <List.hpp>
-#include <map>
-#include <string>
-
-#include "DeviceIDs.h"
 #include "cJSON.h"
-
 struct DeviceData {
-  double longitude;
-  double latitude;
-  int hour;
-  int minute;
-  int second;
+  double longitude{0};
+  double latitude{0};
+  int hour{0};
+  int minute{0};
+  int second{0};
 
   static DeviceData deserialize(const char* jsonStr) {
     DeviceData result = {};
@@ -73,19 +64,4 @@ struct DeviceData {
 
     return thisSec > otherSec;
   }
-};
-
-class DeviceDataController {
- public:
-  DeviceDataController();
-  void addDeviceData(uint32_t userId, const DeviceData& DeviceData);
-  const char* updateMessage() const;
-  void updateData(double lon, double lat, int h, int m, int s);
-  void setDeviceId(uint32_t id);
-
- private:
-  std::map<uint32_t, DeviceData> m_data;
-  std::map<uint32_t, std::string> m_usernames;
-  DeviceData m_deviceData;
-  uint32_t m_deviceId{0};
 };

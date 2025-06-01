@@ -2,6 +2,9 @@
 
 #include <ctime>
 static const char* TAG = "DeviceController";
+std::map<uint32_t, DeviceData> DeviceDataController::m_data;
+std::map<uint32_t, std::string> DeviceDataController::m_usernames;
+DeviceData DeviceDataController::m_deviceData;
 
 DeviceDataController::DeviceDataController() {
   m_usernames.insert(std::pair<uint32_t, std::string>(DEVICE_0, USER_0));
@@ -34,6 +37,6 @@ void DeviceDataController::updateData(double lat, double lon, int h, int m,
 
 void DeviceDataController::setDeviceId(uint32_t id) { m_deviceId = id; }
 
-const char* DeviceDataController::updateMessage() const {
+const char* DeviceDataController::updateMessage() {
   return m_deviceData.serialize();
 }
