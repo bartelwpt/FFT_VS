@@ -1,7 +1,6 @@
 #pragma once
 class JoystickController {
-  
-public:
+ public:
   JoystickController();
 
   bool mid();
@@ -19,7 +18,7 @@ public:
   void lock();
   void unlock();
 
-private:
+ private:
   void resetPins();
 
   bool m_mid, m_up, m_down, m_left, m_right;

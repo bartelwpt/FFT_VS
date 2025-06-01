@@ -1,22 +1,25 @@
 #pragma once
-#include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 #include <JoystickController.h>
 #include <Menu.h>
 #include <StateMachine.h>
+
 #include "DeviceDataController.h"
-#define SCREEN_ADDRESS 0x3C 
+#define SCREEN_ADDRESS 0x3C
 
 class ApplicationController {
-public:
-  ApplicationController(Adafruit_SSD1306 *display, JoystickController *jController, StateMachine * stateMachine);
+ public:
+  ApplicationController(Adafruit_SSD1306 *display,
+                        JoystickController *jController,
+                        StateMachine *stateMachine);
   void receiveMessage(uint32_t id, const char *msg);
   void run();
   void setDeviceId(uint32_t id);
   void updateGpsData(long lon, long lat, int h, int m, int s);
-  const char* prepareMessage();
+  const char *prepareMessage();
 
-private:
+ private:
   Adafruit_SSD1306 *m_display;
   JoystickController *m_jController;
   StateMachine *m_stateMachine;
@@ -24,10 +27,3 @@ private:
   DeviceDataController *m_ddController{new DeviceDataController()};
   bool m_started{false};
 };
-
-
-
-
-
-
-  

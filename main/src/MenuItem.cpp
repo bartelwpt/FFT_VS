@@ -1,29 +1,14 @@
-  #include <MenuItem.h>
-  
-  MenuItem::MenuItem(char * name, void (*callback)()) : m_name(name), m_onEnteredCallback(callback)
-  {}
+#include <MenuItem.h>
 
-  const char * MenuItem::name() {
-    return m_name;
-  }
+MenuItem::MenuItem(char* name, void (*callback)())
+    : m_name(name), m_onEnteredCallback(callback) {}
 
-  bool MenuItem::selected() const
-  {
-    return m_selected;
-  }
+const char* MenuItem::name() { return m_name; }
 
-  void MenuItem::select() 
-  {
-    m_selected = true;
-  }
+bool MenuItem::selected() const { return m_selected; }
 
-  void MenuItem::deselect() 
-  {
-    m_selected = false;
-  }
+void MenuItem::select() { m_selected = true; }
 
-  void MenuItem::submit() 
-  {
-    m_onEnteredCallback();
-  }
+void MenuItem::deselect() { m_selected = false; }
 
+void MenuItem::submit() { m_onEnteredCallback(); }
