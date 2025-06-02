@@ -1,9 +1,30 @@
 #include <Arduino.h>
 #include <JoystickController.h>
 
-JoystickController::JoystickController() {
-  resetPins();
-  m_locked = false;
+#define JOYSTICK_MID 16
+#define JOYSTICK_RIGHT 4
+#define JOYSTICK_LEFT 0
+#define JOYSTICK_DOWN 2
+#define JOYSTICK_UP 15
+JoystickController *JoystickController::instance = nullptr;
+
+JoystickController::JoystickController() { instance = this; }
+
+void JoystickController::init() {
+  pinMode(JOYSTICK_DOWN, INPUT_PULLUP);
+  pinMode(JOYSTICK_UP, INPUT_PULLUP);
+  pinMode(JOYSTICK_LEFT, INPUT_PULLUP);
+  pinMode(JOYSTICK_RIGHT, INPUT_PULLUP);
+  pinMode(JOYSTICK_MID, INPUT_PULLUP);
+
+  attachInterrupt(digitalPinToInterrupt(JOYSTICK_DOWN), onJoystickDown,
+                  FALLING);
+  attachInterrupt(digitalPinToInterrupt(JOYSTICK_UP), onJoystickUp, FALLING);
+  attachInterrupt(digitalPinToInterrupt(JOYSTICK_LEFT), onJoystickLeft,
+                  FALLING);
+  attachInterrupt(digitalPinToInterrupt(JOYSTICK_RIGHT), onJoystickRight,
+                  FALLING);
+  attachInterrupt(digitalPinToInterrupt(JOYSTICK_MID), onJoystickMid, FALLING);
 }
 
 bool JoystickController::mid() { return m_mid; }
@@ -58,4 +79,39 @@ void JoystickController::resetPins() {
   m_down = false;
   m_left = false;
   m_right = false;
+}
+
+void IRAM_ATTR JoystickController::onJoystickMid() {
+  if (instance && !instance->m_locked) {
+    instance->resetPins();
+    instance->m_mid = true;
+  }
+}
+
+void IRAM_ATTR JoystickController::onJoystickLeft() {
+  if (instance && !instance->m_locked) {
+    instance->resetPins();
+    instance->m_left = true;
+  }
+}
+
+void IRAM_ATTR JoystickController::onJoystickRight() {
+  if (instance && !instance->m_locked) {
+    instance->resetPins();
+    instance->m_right = true;
+  }
+}
+
+void IRAM_ATTR JoystickController::onJoystickDown() {
+  if (instance && !instance->m_locked) {
+    instance->resetPins();
+    instance->m_down = true;
+  }
+}
+
+void IRAM_ATTR JoystickController::onJoystickUp() {
+  if (instance && !instance->m_locked) {
+    instance->resetPins();
+    instance->m_up = true;
+  }
 }

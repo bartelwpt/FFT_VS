@@ -2,8 +2,12 @@
 
 #include "GPSController.h"
 
-painlessMesh MeshController::m_mesh;
+MeshController* MeshController::instance = nullptr;
 static const char* TAG = "MESH";
+
+MeshController::MeshController(GPSController* gps) : m_gps(gps) {
+  instance = this;
+}
 
 void MeshController::init() {
   ESP_LOGI(TAG, "Starting mesh network ...");
@@ -18,8 +22,8 @@ void MeshController::init() {
 
 void MeshController::receiveCallback(uint32_t from, String& msg) {
   ESP_LOGI(TAG, "received message from %" PRIu32 ": %s", from, msg.c_str());
-  DeviceDataController::addDeviceData(from,
-                                      DeviceData::deserialize(msg.c_str()));
+  instance->m_ddController.addDeviceData(from,
+                                         DeviceData::deserialize(msg.c_str()));
 }
 
 void MeshController::newConnectionCallback(uint32_t nodeId) {
@@ -27,23 +31,24 @@ void MeshController::newConnectionCallback(uint32_t nodeId) {
 }
 
 void MeshController::changedConnectionCallback() {
-  ESP_LOGI(TAG, "Changed connections %s", m_mesh.subConnectionJson().c_str());
+  ESP_LOGI(TAG, "Changed connections %s",
+           instance->m_mesh.subConnectionJson().c_str());
 }
 
 void MeshController::nodeTimeAdjustedCallback(int32_t offset) {
   ESP_LOGI(TAG, "Adjusted time %" PRIu32 ". Offset = %" PRIi32,
-           m_mesh.getNodeTime(), offset);
+           instance->m_mesh.getNodeTime(), offset);
 }
 
 void MeshController::task(void* pvParameters) {
   (void)pvParameters;
   while (true) {
-    m_mesh.update();
+    instance->m_mesh.update();
     ESP_LOGI(TAG, "GPS update ready? %d", GPSController::updateReady());
     if (GPSController::updateReady()) {
-      DeviceDataController::addDeviceData(m_mesh.getNodeId(),
-                                          GPSController::data);
-      m_mesh.sendBroadcast(DeviceDataController::updateMessage());
+      DeviceDataController::addDeviceData(instance->m_mesh.getNodeId(),
+                                          instance->m_gps->data);
+      instance->m_mesh.sendBroadcast(DeviceDataController::updateMessage());
       GPSController::updateDone();
     }
     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -57,5 +62,5 @@ void MeshController::startTask() {
 
 void MeshController::sendBroadcast(const char* msg) {
   ESP_LOGI(TAG, "Sending broadcast msg: %s", msg);
-  m_mesh.sendBroadcast(msg);
+  instance->m_mesh.sendBroadcast(msg);
 }

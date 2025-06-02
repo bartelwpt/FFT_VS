@@ -10,7 +10,10 @@ Menu::Menu(Adafruit_SSD1306 *display, JoystickController *jController,
   m_display->clearDisplay();
   m_display->setCursor(0, 0);
   m_display->setTextSize(1);
-  m_menuItems->get(0)->select();
+
+  if (m_menuItems->getSize() > 0) {
+    m_menuItems->get(0)->select();
+  }
   m_selectedIndex = 0;
 }
 
@@ -76,15 +79,17 @@ void Menu::selectIndex() {
 }
 
 void Menu::showHeader() {
-  uint16_t width = 0, height = 0;
-  int16_t xBound = -1, yBound = -1;
-  const char *title = "MENU";
-  m_display->getTextBounds(title, 0, 0, &xBound, &yBound, &width, &height);
-  m_display->setCursor((128 - width) / 2, 1);
-  m_display->fillRect(0, 0, m_display->width(), 10, WHITE);
-  m_display->setTextColor(BLACK);
-  m_display->println(title);
-  m_display->display();
+  if (m_display) {
+    uint16_t width = 0, height = 0;
+    int16_t xBound = -1, yBound = -1;
+    const char *title = "MENU";
+    m_display->getTextBounds(title, 0, 0, &xBound, &yBound, &width, &height);
+    m_display->setCursor((128 - width) / 2, 1);
+    m_display->fillRect(0, 0, m_display->width(), 10, WHITE);
+    m_display->setTextColor(BLACK);
+    m_display->println(title);
+    m_display->display();
+  }
 }
 
 void Menu::clearBody() {

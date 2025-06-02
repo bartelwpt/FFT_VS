@@ -3,19 +3,16 @@
 #include <Arduino.h>
 
 static const char *TAG = "GPS";
+GPSController *GPSController::instance = nullptr;
 
-DeviceData GPSController::data;
+static constexpr int GPS_RX = 26;
+static constexpr int GPS_TX = 27;
 
-#define GPS_RX 26
-#define GPS_TX 27
-
-bool GPSController::m_updateReady = false;
-HardwareSerial GPSController::m_hwSerial = HardwareSerial(2);
-TinyGPSPlus GPSController::m_gps;
+GPSController::GPSController() : m_hwSerial{2} { instance = this; }
 
 void GPSController::init() {
   ESP_LOGI(TAG, "Initializing GPS");
-  m_hwSerial.begin(9600, SERIAL_8N1, GPS_RX, GPS_TX);
+  instance->m_hwSerial.begin(9600, SERIAL_8N1, GPS_RX, GPS_TX);
 }
 
 void GPSController::startTask() {
@@ -26,27 +23,31 @@ void GPSController::startTask() {
 void GPSController::task(void *pvParameters) {
   (void)pvParameters;
 
+  auto hwSerial = instance->m_hwSerial;
+  auto gps = instance->m_gps;
+  auto data = instance->data;
+
   while (true) {
-    if (m_hwSerial.available()) {
-      m_gps.encode(m_hwSerial.read());
+    if (hwSerial.available()) {
+      gps.encode(hwSerial.read());
     }
 
-    if (m_gps.location.isUpdated() && m_gps.location.lat() != data.latitude &&
-        m_gps.location.lng() != data.longitude) {
+    if (gps.location.isUpdated() && gps.location.lat() != data.latitude &&
+        gps.location.lng() != data.longitude) {
       ESP_LOGI(TAG, "New GPS Location detected, indicating update ...");
 
-      data.latitude = m_gps.location.lat();
-      data.longitude = m_gps.location.lng();
-      data.hour = m_gps.time.hour();
-      data.minute = m_gps.time.minute();
-      data.second = m_gps.time.second();
+      data.latitude = gps.location.lat();
+      data.longitude = gps.location.lng();
+      data.hour = gps.time.hour();
+      data.minute = gps.time.minute();
+      data.second = gps.time.second();
 
-      m_updateReady = true;
+      instance->m_updateReady = true;
     }
 
     vTaskDelay(pdMS_TO_TICKS(10));
   }
 }
 
-bool GPSController::updateReady() { return m_updateReady; }
-void GPSController::updateDone() { m_updateReady = false; }
+bool GPSController::updateReady() { return instance->m_updateReady; }
+void GPSController::updateDone() { instance->m_updateReady = false; }

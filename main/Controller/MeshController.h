@@ -2,9 +2,10 @@
 #include <painlessMesh.h>
 
 #include "DeviceDataController.h"
+#include "GPSController.h"
 class MeshController {
  public:
-  MeshController() = default;
+  MeshController(GPSController* gps);
   void init();
   void startTask();
   static void task(void* pvParameters);
@@ -15,6 +16,8 @@ class MeshController {
   static void sendBroadcast(const char* msg);
 
  private:
-  static painlessMesh m_mesh;
+  static MeshController* instance;
+  painlessMesh m_mesh;
+  GPSController* m_gps;
   DeviceDataController m_ddController;
 };

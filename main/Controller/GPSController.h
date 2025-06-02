@@ -4,17 +4,18 @@
 #include "DeviceData.h"
 class GPSController {
  public:
-  GPSController() = default;
+  GPSController();
   void init();
   void startTask();
   static bool updateReady();
   static void updateDone();
 
-  static DeviceData data;
+  DeviceData data;
 
  private:
+  static GPSController* instance;
   static void task(void* pvParameters);
-  static HardwareSerial m_hwSerial;
-  static TinyGPSPlus m_gps;
-  static bool m_updateReady;
+  HardwareSerial m_hwSerial;
+  TinyGPSPlus m_gps;
+  bool m_updateReady;
 };

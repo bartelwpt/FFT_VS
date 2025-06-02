@@ -14,6 +14,7 @@ idf_component_register(
         "Controller/DeviceDataController.cpp"
         "Controller/GPSController.cpp"
         "Controller/MeshController.cpp"
+        "Controller/MenuController.cpp"
     INCLUDE_DIRS 
         "Controller"
         "Menu"
