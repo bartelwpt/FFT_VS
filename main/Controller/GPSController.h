@@ -1,7 +1,8 @@
 #pragma once
+#include <NMEAGPS.h>
 #include <TinyGPSPlus.h>
 
-#include "DeviceData.h"
+#include "GPSData.h"
 class GPSController {
  public:
   GPSController();
@@ -10,7 +11,7 @@ class GPSController {
   static bool updateReady();
   static void updateDone();
 
-  DeviceData data;
+  GPSData data;
 
  private:
   static GPSController* instance;

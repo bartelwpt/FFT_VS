@@ -22,8 +22,7 @@ void MeshController::init() {
 
 void MeshController::receiveCallback(uint32_t from, String& msg) {
   ESP_LOGI(TAG, "received message from %" PRIu32 ": %s", from, msg.c_str());
-  instance->m_ddController.addDeviceData(from,
-                                         DeviceData::deserialize(msg.c_str()));
+  instance->m_ddController.addGPSData(from, GPSData::deserialize(msg.c_str()));
 }
 
 void MeshController::newConnectionCallback(uint32_t nodeId) {
@@ -46,8 +45,8 @@ void MeshController::task(void* pvParameters) {
     instance->m_mesh.update();
     ESP_LOGI(TAG, "GPS update ready? %d", GPSController::updateReady());
     if (GPSController::updateReady()) {
-      DeviceDataController::addDeviceData(instance->m_mesh.getNodeId(),
-                                          instance->m_gps->data);
+      DeviceDataController::addGPSData(instance->m_mesh.getNodeId(),
+                                       instance->m_gps->data);
       instance->m_mesh.sendBroadcast(DeviceDataController::updateMessage());
       GPSController::updateDone();
     }

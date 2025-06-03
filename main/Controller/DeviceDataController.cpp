@@ -2,17 +2,16 @@
 
 #include <ctime>
 static const char* TAG = "DeviceController";
-std::map<uint32_t, DeviceData> DeviceDataController::m_data;
+std::map<uint32_t, GPSData> DeviceDataController::m_data;
 std::map<uint32_t, std::string> DeviceDataController::m_usernames;
-DeviceData DeviceDataController::m_deviceData;
+GPSData DeviceDataController::m_gpsData;
 
 DeviceDataController::DeviceDataController() {
   m_usernames.insert(std::pair<uint32_t, std::string>(DEVICE_0, USER_0));
   m_usernames.insert(std::pair<uint32_t, std::string>(DEVICE_1, USER_1));
 }
 
-void DeviceDataController::addDeviceData(uint32_t userId,
-                                         const DeviceData& data) {
+void DeviceDataController::addGPSData(uint32_t userId, const GPSData& data) {
   if ((m_data.contains(userId) && !data.isNewer(m_data[userId])) ||
       userId == 0) {
     // Our existing data is more recent
@@ -26,17 +25,13 @@ void DeviceDataController::addDeviceData(uint32_t userId,
 }
 
 void DeviceDataController::updateData(double lat, double lon, int h, int m,
-                                      int s) {
-  m_deviceData.latitude = lat;
-  m_deviceData.longitude = lon;
-  m_deviceData.hour = h;
-  m_deviceData.minute = m;
-  m_deviceData.second = s;
-  addDeviceData(m_deviceId, m_deviceData);
+                                      int s, bool f) {
+  m_gpsData = GPSData(lat, lon, h, m, s, f);
+  addGPSData(m_deviceId, m_gpsData);
 }
 
 void DeviceDataController::setDeviceId(uint32_t id) { m_deviceId = id; }
 
 const char* DeviceDataController::updateMessage() {
-  return m_deviceData.serialize();
+  return m_gpsData.serialize();
 }

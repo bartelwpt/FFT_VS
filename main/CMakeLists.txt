@@ -28,4 +28,5 @@ idf_component_register(
         TinyGPSPlus
         painlessMesh
         json
+        NeoGPS
 )
