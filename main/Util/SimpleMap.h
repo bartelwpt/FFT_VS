@@ -1,6 +1,9 @@
+#pragma once
 #include <optional>  // C++17
 #include <utility>
 #include <vector>
+
+#include "esp_log.h"
 
 template <typename Key, typename Value>
 class SimpleMap {
@@ -18,11 +21,16 @@ class SimpleMap {
 
   // Find value by key; returns std::optional<Value>
   std::optional<Value> find(const Key& key) const {
+    ESP_LOGI("SimpleMap", "finding key: %" PRIu32, static_cast<uint32_t>(key));
     for (const auto& kv : data_) {
-      if (kv.first == key) {
+      ESP_LOGI("SimpleMap", "Got Key: %" PRIu32,
+               static_cast<uint32_t>(kv.first));
+      if (static_cast<uint32_t>(kv.first) == static_cast<uint32_t>(key)) {
+        ESP_LOGI("SimpleMap", "MATCH FOUND");
         return kv.second;
       }
     }
+    ESP_LOGI("SimpleMap", "No Match Found");
     return std::nullopt;
   }
 

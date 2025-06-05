@@ -4,6 +4,7 @@
 
 #include "ApplicationController.h"
 #include "GPSController.h"
+#include "GPSDatabase.h"
 #include "JoystickController.h"
 #include "MenuController.h"
 #include "MeshController.h"
@@ -20,6 +21,7 @@ struct SystemControllers {
   MeshController mesh;
   StateMachine stateMachine;
   MenuController menu;
+  GPSDatabase db;
   ApplicationController app;
 
   SystemControllers()
@@ -29,6 +31,7 @@ struct SystemControllers {
         mesh(),
         stateMachine(),
         menu(),
+        db(),
         app() {}
 
   static SystemControllers& instance() {

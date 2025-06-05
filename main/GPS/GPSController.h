@@ -10,6 +10,8 @@ class GPSController {
   void startTask();
   static bool updateReady();
   static void updateDone();
+  static void readFromSerial(HardwareSerial& serial, TinyGPSPlus& gps);
+  static void processGPSData(TinyGPSPlus& gps);
   const GPSData& bundleData();
 
  private:

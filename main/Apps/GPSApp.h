@@ -15,4 +15,5 @@ class GPSApp : public IAppState {
   JoystickController m_joystick;
   GPSController m_gps;
   StateMachine m_stateMachine;
+  GPSDatabase m_db;
 };

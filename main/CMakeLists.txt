@@ -6,6 +6,9 @@ idf_component_register(
         "Apps/ApplicationController.cpp"
         "Apps/GPSApp.cpp"
 
+        # Database
+        "Database/GPSDatabase.cpp"
+
         # GPS Hardware Logic
         "GPS/GPSController.cpp"
 

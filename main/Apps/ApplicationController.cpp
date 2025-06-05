@@ -44,7 +44,7 @@ void ApplicationController::switchToApp(AppID id) {
 void ApplicationController::task(void* pvParameters) {
   while (true) {
     instance->run();
-    vTaskDelay(pdMS_TO_TICKS(10));
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
 

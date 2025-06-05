@@ -25,23 +25,28 @@ void GPSController::startTask() {
 void GPSController::task(void *pvParameters) {
   (void)pvParameters;
 
-  auto hwSerial = instance->m_hwSerial;
-  auto gps = instance->m_gps;
+  auto &hwSerial = instance->m_hwSerial;
+  auto &gps = instance->m_gps;
 
   while (true) {
-    if (hwSerial.available()) {
-      gps.encode(hwSerial.read());
-    }
-
-    if (gps.location.isUpdated()) {
-      ESP_LOGI(TAG, "Location update, publish event ...");
-      GPSDataReceivedEvent event{SystemControllers::instance().mesh.deviceId(),
-                                 instance->bundleData()};
-      EventDispatcher::instance().dispatch(event);
-    }
-
-    vTaskDelay(pdMS_TO_TICKS(10));
+    readFromSerial(hwSerial, gps);
+    processGPSData(gps);
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
+}
+void GPSController::readFromSerial(HardwareSerial &serial, TinyGPSPlus &gps) {
+  while (serial.available()) {
+    gps.encode(serial.read());
+  }
+}
+void GPSController::processGPSData(TinyGPSPlus &gps) {
+  if (!gps.location.isValid() || gps.location.age() > 2000) {
+    return;
+  }
+
+  GPSDataReceivedEvent event{SystemControllers::instance().mesh.deviceId(),
+                             instance->bundleData()};
+  EventDispatcher::instance().dispatch(event);
 }
 
 const GPSData &GPSController::bundleData() {

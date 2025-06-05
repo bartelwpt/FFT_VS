@@ -1,5 +1,6 @@
 #pragma once
 #include "cJSON.h"
+#include "esp_log.h"
 struct GPSData {
   double longitude{0.0};
   double latitude{0.0};
@@ -54,7 +55,7 @@ struct GPSData {
         cJSON_PrintUnformatted(root);  // or cJSON_Print() for pretty
     cJSON_Delete(root);                // free the object tree
 
-    ESP_LOGI("GPSData", "Serialized data before sending: %s", jsonStr);
+    // ESP_LOGI("GPSData", "Serialized data before sending: %s", jsonStr);
 
     return jsonStr;  // must be freed by caller
   }

@@ -1,3 +1,4 @@
+#pragma once
 #include "EventDispatcher.h"
 #include "GPSData.h"
 
