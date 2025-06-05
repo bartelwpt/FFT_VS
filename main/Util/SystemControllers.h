@@ -1,32 +1,41 @@
-// SystemControllers.h
 #pragma once
+
 #include <Adafruit_SSD1306.h>
 
 #include "ApplicationController.h"
 #include "GPSController.h"
+#include "JoystickController.h"
 #include "MenuController.h"
 #include "MeshController.h"
-#include "State.h"
+#include "StateMachine.h"
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define SCREEN_ADDRESS 0x3C
 
-// This struct holds references to all major system components
 struct SystemControllers {
   Adafruit_SSD1306 display;
-  MenuController menu;
+  JoystickController joystick;
   GPSController gps;
   MeshController mesh;
-  ApplicationController app;
-  JoystickController joystick;
   StateMachine stateMachine;
+  MenuController menu;
+  ApplicationController app;
 
-  // Initialize member references and dependencies
   SystemControllers()
       : display(SCREEN_WIDTH, SCREEN_HEIGHT),
-        menu(&display, &joystick, &stateMachine),
+        joystick(),
         gps(),
-        mesh(&gps),
-        app(&display, &joystick, &gps, &menu, &stateMachine) {}
+        mesh(),
+        stateMachine(),
+        menu(),
+        app() {}
+
+  static SystemControllers& instance() {
+    static SystemControllers instance;
+    return instance;
+  }
+
+  SystemControllers(const SystemControllers&) = delete;
+  void operator=(const SystemControllers&) = delete;
 };

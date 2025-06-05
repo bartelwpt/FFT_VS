@@ -2,18 +2,11 @@
 
 #include <Arduino.h>
 
-#include "ApplicationController.h"
-
+#include "SystemControllers.h"
 // Static variables initialization
 MenuController* MenuController::s_instance = nullptr;
 
-MenuController::MenuController(Adafruit_SSD1306* display,
-                               JoystickController* joystick,
-                               StateMachine* stateMachine)
-    : m_display(display),
-      m_joystick(joystick),
-      m_stateMachine(stateMachine),
-      m_menu(nullptr) {
+MenuController::MenuController() {
   btnTestMenuItem = nullptr;
   nwTestMenuItem = nullptr;
   gpsTestMenuItem = nullptr;
@@ -34,6 +27,10 @@ MenuController::~MenuController() {
 Menu* MenuController::getMenu() const { return m_menu; }
 
 void MenuController::init() {
+  m_display = &SystemControllers::instance().display;
+  m_joystick = &SystemControllers::instance().joystick;
+  m_app = &SystemControllers::instance().app;
+
   Serial.println("MenuController: init");
 
   // Create MenuItems with callback lambdas or static callbacks
@@ -46,7 +43,7 @@ void MenuController::init() {
   m_menuItemList.add(gpsTestMenuItem);
 
   m_menu = new Menu(m_display, m_joystick, &m_menuItemList);
-  s_instance->m_stateMachine->setCurrentState(AppStates::MENU_STATE);
+  m_app->switchToApp(AppID::MENU);
 }
 
 void MenuController::run() {
@@ -59,18 +56,18 @@ void MenuController::run() {
 // --- CALLBACKS ---
 void MenuController::btnTestMenuItemCallback() {
   if (s_instance) {
-    s_instance->m_stateMachine->setCurrentState(AppStates::BUTTON_TEST_STATE);
+    s_instance->m_app->switchToApp(AppID::BUTTON_TEST);
   }
 }
 
 void MenuController::nwTestMenuItemCallback() {
   if (s_instance) {
-    s_instance->m_stateMachine->setCurrentState(AppStates::NETWORK_TEST_STATE);
+    s_instance->m_app->switchToApp(AppID::NETWORK_TEST);
   }
 }
 
 void MenuController::gpsTestMenuItemCallback() {
   if (s_instance) {
-    s_instance->m_stateMachine->setCurrentState(AppStates::GPS_TEST_STATE);
+    s_instance->m_app->switchToApp(AppID::GPS);
   }
 }

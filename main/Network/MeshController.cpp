@@ -1,13 +1,13 @@
 #include "MeshController.h"
 
 #include "GPSController.h"
+#include "GPSDataReceivedEvent.h"
+#include "GPSFixAcquiredEvent.h"
 
 MeshController* MeshController::instance = nullptr;
 static const char* TAG = "MESH";
 
-MeshController::MeshController(GPSController* gps) : m_gps(gps) {
-  instance = this;
-}
+MeshController::MeshController() { instance = this; }
 
 void MeshController::init() {
   ESP_LOGI(TAG, "Starting mesh network ...");
@@ -18,11 +18,21 @@ void MeshController::init() {
   m_mesh.onNewConnection(&MeshController::newConnectionCallback);
   m_mesh.onChangedConnections(&MeshController::changedConnectionCallback);
   m_mesh.onNodeTimeAdjusted(&MeshController::nodeTimeAdjustedCallback);
+
+  EventDispatcher::instance().subscribe<GPSFixAcquiredEvent>(
+      [this](const IEvent& e) {
+        ESP_LOGI(TAG, "Received GPS Event");
+        const auto& evt = static_cast<const GPSFixAcquiredEvent&>(e);
+        data = evt.data;
+        sendUpdate = true;
+      });
 }
 
 void MeshController::receiveCallback(uint32_t from, String& msg) {
   ESP_LOGI(TAG, "received message from %" PRIu32 ": %s", from, msg.c_str());
-  instance->m_ddController.addGPSData(from, GPSData::deserialize(msg.c_str()));
+  GPSData data = GPSData::deserialize(msg.c_str());
+  GPSDataReceivedEvent event(instance->deviceId(), data);
+  EventDispatcher::instance().dispatch(event);
 }
 
 void MeshController::newConnectionCallback(uint32_t nodeId) {
@@ -43,12 +53,8 @@ void MeshController::task(void* pvParameters) {
   (void)pvParameters;
   while (true) {
     instance->m_mesh.update();
-    ESP_LOGI(TAG, "GPS update ready? %d", GPSController::updateReady());
-    if (GPSController::updateReady()) {
-      DeviceDataController::addGPSData(instance->m_mesh.getNodeId(),
-                                       instance->m_gps->data);
-      instance->m_mesh.sendBroadcast(DeviceDataController::updateMessage());
-      GPSController::updateDone();
+    if (instance->sendUpdate) {
+      instance->m_mesh.sendBroadcast(instance->data.serialize());
     }
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
@@ -63,3 +69,5 @@ void MeshController::sendBroadcast(const char* msg) {
   ESP_LOGI(TAG, "Sending broadcast msg: %s", msg);
   instance->m_mesh.sendBroadcast(msg);
 }
+
+uint32_t MeshController::deviceId() { return m_mesh.getNodeId(); }

@@ -9,9 +9,4 @@ const uint32_t DEVICE_1 = 530658649;
 const std::string USER_0 = "Yannic";
 const std::string USER_1 = "Jan";
 
-enum AppStates {
-  MENU_STATE = 0,
-  GPS_TEST_STATE,
-  BUTTON_TEST_STATE,
-  NETWORK_TEST_STATE
-};
+enum class AppID { MENU = 0, GPS, BUTTON_TEST, NETWORK_TEST };

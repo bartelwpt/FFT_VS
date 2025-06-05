@@ -1,7 +1,7 @@
 #pragma once
 class MenuItem {
  public:
-  MenuItem(char* name, void (*callback)());
+  MenuItem(const char* name, void (*callback)());
 
   const char* name();
   bool selected() const;
@@ -10,7 +10,7 @@ class MenuItem {
   void submit();
 
  private:
-  char* m_name;
+  const char* m_name;
   bool m_selected{false};
   void (*m_onEnteredCallback)(void);
 };

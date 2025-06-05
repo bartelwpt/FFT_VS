@@ -1,25 +1,23 @@
 #pragma once
-#include <State.h>
-
 #include <List.hpp>
+#include <vector>
+
+#include "IAppState.h"
 
 class StateMachine {
  public:
   StateMachine();
+
+  void addState(IAppState *state);
+  void setCurrentState(IAppState *state);
   void start();
-  int nextId();
-  bool running();
-  void setCurrentState(int stateId);
-  void addStates(List<State *> &stateList);
-  void addStates(std::initializer_list<State *> states);
+  void stop();
+  void update();
+
+  bool running() const;
 
  private:
-  void run();
-
-  State *menuState, *buttonTestState, *networkTestState, *gpsTestState;
-
-  bool m_running;
-  List<State *> *m_states;
-  State *m_currentState;
-  int m_idProvider;
+  bool m_running{false};
+  std::vector<IAppState *> m_states;
+  IAppState *m_currentState{nullptr};
 };

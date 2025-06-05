@@ -1,6 +1,6 @@
 #include <MenuItem.h>
 
-MenuItem::MenuItem(char* name, void (*callback)())
+MenuItem::MenuItem(const char* name, void (*callback)())
     : m_name(name), m_onEnteredCallback(callback) {}
 
 const char* MenuItem::name() { return m_name; }

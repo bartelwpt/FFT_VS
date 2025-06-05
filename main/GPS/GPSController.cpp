@@ -2,6 +2,8 @@
 
 #include <Arduino.h>
 
+#include "GPSDataReceivedEvent.h"
+#include "SystemControllers.h"
 static const char *TAG = "GPS";
 GPSController *GPSController::instance = nullptr;
 
@@ -25,28 +27,28 @@ void GPSController::task(void *pvParameters) {
 
   auto hwSerial = instance->m_hwSerial;
   auto gps = instance->m_gps;
-  auto data = instance->data;
 
   while (true) {
     if (hwSerial.available()) {
       gps.encode(hwSerial.read());
     }
 
-    if (gps.location.isUpdated() && gps.location.lat() != data.latitude &&
-        gps.location.lng() != data.longitude) {
-      ESP_LOGI(TAG, "New GPS Location detected, indicating update ...");
-
-      data.latitude = gps.location.lat();
-      data.longitude = gps.location.lng();
-      data.hour = gps.time.hour();
-      data.minute = gps.time.minute();
-      data.second = gps.time.second();
-
-      instance->m_updateReady = true;
+    if (gps.location.isUpdated()) {
+      ESP_LOGI(TAG, "Location update, publish event ...");
+      GPSDataReceivedEvent event{SystemControllers::instance().mesh.deviceId(),
+                                 instance->bundleData()};
+      EventDispatcher::instance().dispatch(event);
     }
 
     vTaskDelay(pdMS_TO_TICKS(10));
   }
+}
+
+const GPSData &GPSController::bundleData() {
+  cachedData =
+      GPSData(m_gps.location.lng(), m_gps.location.lat(), m_gps.time.hour(),
+              m_gps.time.minute(), m_gps.time.second(), true);
+  return cachedData;
 }
 
 bool GPSController::updateReady() { return instance->m_updateReady; }

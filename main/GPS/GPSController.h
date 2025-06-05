@@ -10,10 +10,10 @@ class GPSController {
   void startTask();
   static bool updateReady();
   static void updateDone();
-
-  GPSData data;
+  const GPSData& bundleData();
 
  private:
+  GPSData cachedData;
   static GPSController* instance;
   static void task(void* pvParameters);
   HardwareSerial m_hwSerial;

@@ -4,25 +4,18 @@
 
 #include <List.hpp>
 
+#include "ApplicationController.h"
 #include "JoystickController.h"
 #include "Menu.h"  // Your Menu class header
 #include "StateMachine.h"
-
 class MenuController {
  public:
-  MenuController(Adafruit_SSD1306* display, JoystickController* joystick,
-                 StateMachine* stateMachine);
+  MenuController();
   ~MenuController();
 
   void init();
   void run();
   Menu* getMenu() const;
-
-  // States for callbacks to use:
-  static State* s_buttonTestState;
-  static State* s_networkTestState;
-  static State* s_gpsTestState;
-  static State* s_menuState;
 
  private:
   static void btnTestMenuItemCallback();
@@ -31,7 +24,7 @@ class MenuController {
 
   Adafruit_SSD1306* m_display;
   JoystickController* m_joystick;
-  StateMachine* m_stateMachine;
+  ApplicationController* m_app;
 
   Menu* m_menu;
   List<MenuItem*> m_menuItemList;

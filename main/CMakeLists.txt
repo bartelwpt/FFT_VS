@@ -1,26 +1,44 @@
 idf_component_register(
     SRCS 
         "main.cpp"
+        
+        # Apps
+        "Apps/ApplicationController.cpp"
+        "Apps/GPSApp.cpp"
+
+        # GPS Hardware Logic
+        "GPS/GPSController.cpp"
+
+        # Joystick Hardware Logic
+        "Joystick/JoystickController.cpp"
+
+        # Mesh Hardware Logic
+        "Network/MeshController.cpp"
+
+        # Menu System
+        "Menu/MenuItem.cpp"
+        "Menu/Menu.cpp"
+        "Menu/MenuController.cpp"
+
+        # State Machine
         "StateMachine/StateMachine.cpp"
         "StateMachine/State.cpp"
 
-        "Menu/MenuItem.cpp"
-        "Menu/Menu.cpp"
-
+        # UI
         "UI/Renderer.cpp"
 
-        "Controller/ApplicationController.cpp"
-        "Controller/JoystickController.cpp" 
-        "Controller/DeviceDataController.cpp"
-        "Controller/GPSController.cpp"
-        "Controller/MeshController.cpp"
-        "Controller/MenuController.cpp"
     INCLUDE_DIRS 
-        "Controller"
+        "Apps"
+        "Database"
+        "GPS"
+        "Joystick"
+        "Network"
         "Menu"
         "StateMachine"
-        "UI"
+        "Event"
         "Util"
+        "UI"
+
     REQUIRES
         arduino-esp32 
         List 

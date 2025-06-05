@@ -1,11 +1,11 @@
 #pragma once
 #include <painlessMesh.h>
 
-#include "DeviceDataController.h"
-#include "GPSController.h"
+// TO-DO: REMOVE and send data via new event so dd can subscribe
+#include "GPSData.h"
 class MeshController {
  public:
-  MeshController(GPSController* gps);
+  MeshController();
   void init();
   void startTask();
   static void task(void* pvParameters);
@@ -14,10 +14,12 @@ class MeshController {
   static void changedConnectionCallback();
   static void nodeTimeAdjustedCallback(int32_t offset);
   static void sendBroadcast(const char* msg);
+  uint32_t deviceId();
 
  private:
+  GPSData data;
+  bool sendUpdate{false};
   static MeshController* instance;
+
   painlessMesh m_mesh;
-  GPSController* m_gps;
-  DeviceDataController m_ddController;
 };
