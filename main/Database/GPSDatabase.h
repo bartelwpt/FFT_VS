@@ -17,7 +17,7 @@ class GPSDatabase {
   void updateDeviceData(const DeviceID& id, const GPSData& data);
 
   // Retrieve GPS data for a device; returns std::nullopt if not found
-  std::optional<GPSData> getDeviceData(const DeviceID& id);
+  bool getDeviceData(const DeviceID& id, GPSData* data);
 
   // Optional: return all stored devices and data
   SimpleMap<DeviceID, GPSData> getAllData();
@@ -26,5 +26,6 @@ class GPSDatabase {
   SimpleMap<DeviceID, GPSData> deviceDataMap;
   size_t maxDevices;
   SemaphoreHandle_t mutex;
+  std::optional<GPSData> m_deviceData;
   ;  // protects deviceDataMap
 };

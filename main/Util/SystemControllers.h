@@ -21,9 +21,9 @@ struct SystemControllers {
   MeshController mesh;
   StateMachine stateMachine;
   MenuController menu;
-  GPSDatabase db;
   ApplicationController app;
 
+  // Constructor
   SystemControllers()
       : display(SCREEN_WIDTH, SCREEN_HEIGHT),
         joystick(),
@@ -31,14 +31,21 @@ struct SystemControllers {
         mesh(),
         stateMachine(),
         menu(),
-        db(),
         app() {}
 
+  // Singleton accessor
   static SystemControllers& instance() {
     static SystemControllers instance;
     return instance;
   }
 
+  // Singleton accessor for GPSDatabase
+  static GPSDatabase& db() {
+    static GPSDatabase instance;
+    return instance;
+  }
+
+  // Delete copy constructor and assignment
   SystemControllers(const SystemControllers&) = delete;
   void operator=(const SystemControllers&) = delete;
 };
