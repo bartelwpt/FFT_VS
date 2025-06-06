@@ -16,7 +16,7 @@
 
 struct SystemControllers {
   Adafruit_SSD1306 display;
-  JoystickController joystick;
+  JoystickController& joystick;
   GPSController gps;
   MeshController mesh;
   StateMachine stateMachine;
@@ -26,7 +26,7 @@ struct SystemControllers {
   // Constructor
   SystemControllers()
       : display(SCREEN_WIDTH, SCREEN_HEIGHT),
-        joystick(),
+        joystick(JoystickController::getInstance()),
         gps(),
         mesh(),
         stateMachine(),

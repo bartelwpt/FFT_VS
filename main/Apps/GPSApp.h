@@ -13,9 +13,9 @@ class GPSApp : public IAppState {
   void drawLocation();
 
   bool m_hasReceivedOwnGPS{false};
-  Adafruit_SSD1306 m_display;
-  JoystickController m_joystick;
-  GPSController m_gps;
-  StateMachine m_stateMachine;
+  Adafruit_SSD1306& m_display;
+  JoystickController& m_joystick;
+  GPSController& m_gps;
+  StateMachine& m_stateMachine;
   GPSDatabase* m_db;
 };

@@ -1,14 +1,23 @@
-#include <Arduino.h>
-#include <JoystickController.h>
+#include "JoystickController.h"
+
+#include "esp_log.h"
 
 #define JOYSTICK_MID 16
 #define JOYSTICK_RIGHT 4
 #define JOYSTICK_LEFT 0
 #define JOYSTICK_DOWN 2
 #define JOYSTICK_UP 15
-JoystickController *JoystickController::instance = nullptr;
 
-JoystickController::JoystickController() { instance = this; }
+static const char* TAG = "Joystick";
+
+JoystickController* JoystickController::s_instance = nullptr;
+
+JoystickController& JoystickController::getInstance() {
+  static JoystickController instance;
+  return instance;
+}
+
+JoystickController::JoystickController() { s_instance = this; }
 
 void JoystickController::init() {
   pinMode(JOYSTICK_DOWN, INPUT_PULLUP);
@@ -27,91 +36,59 @@ void JoystickController::init() {
   attachInterrupt(digitalPinToInterrupt(JOYSTICK_MID), onJoystickMid, FALLING);
 }
 
-bool JoystickController::mid() { return m_mid; }
+bool JoystickController::isDownPressed() const { return m_down; }
 
-bool JoystickController::up() { return m_up; }
+bool JoystickController::isUpPressed() const { return m_up; }
 
-bool JoystickController::down() { return m_down; }
+bool JoystickController::isLeftPressed() const { return m_left; }
 
-bool JoystickController::left() { return m_left; }
+bool JoystickController::isRightPressed() const { return m_right; }
 
-bool JoystickController::right() { return m_right; }
+bool JoystickController::isMidPressed() const { return m_mid; }
 
-void JoystickController::setMid(bool val) {
-  if (m_locked) return;
-  resetPins();
-  m_mid = val;
-}
+void JoystickController::clearDownPressed() { m_down = false; }
 
-void JoystickController::setUp(bool val) {
-  if (m_locked) return;
-  resetPins();
-  m_up = val;
-}
+void JoystickController::clearUpPressed() { m_up = false; }
 
-void JoystickController::setDown(bool val) {
-  if (m_locked) return;
-  resetPins();
-  m_down = val;
-}
+void JoystickController::clearLeftPressed() { m_left = false; }
 
-void JoystickController::setLeft(bool val) {
-  if (m_locked) return;
-  resetPins();
-  m_left = val;
-}
+void JoystickController::clearRightPressed() { m_right = false; }
 
-void JoystickController::setRight(bool val) {
-  if (m_locked) return;
-  resetPins();
-  m_right = val;
-}
+void JoystickController::clearMidPressed() { m_mid = false; }
 
 void JoystickController::lock() { m_locked = true; }
 
 void JoystickController::unlock() { m_locked = false; }
 
-bool JoystickController::locked() { return m_locked; }
-
-void JoystickController::resetPins() {
-  m_mid = false;
-  m_up = false;
-  m_down = false;
-  m_left = false;
-  m_right = false;
-}
-
-void IRAM_ATTR JoystickController::onJoystickMid() {
-  if (instance && !instance->m_locked) {
-    instance->resetPins();
-    instance->m_mid = true;
-  }
-}
-
-void IRAM_ATTR JoystickController::onJoystickLeft() {
-  if (instance && !instance->m_locked) {
-    instance->resetPins();
-    instance->m_left = true;
-  }
-}
-
-void IRAM_ATTR JoystickController::onJoystickRight() {
-  if (instance && !instance->m_locked) {
-    instance->resetPins();
-    instance->m_right = true;
-  }
-}
+bool JoystickController::locked() const { return m_locked; }
 
 void IRAM_ATTR JoystickController::onJoystickDown() {
-  if (instance && !instance->m_locked) {
-    instance->resetPins();
-    instance->m_down = true;
+  if (s_instance && !s_instance->m_locked) {
+    s_instance->m_down = true;
+    ESP_LOGI(TAG, "Joystick DOWN pressed");
   }
 }
 
 void IRAM_ATTR JoystickController::onJoystickUp() {
-  if (instance && !instance->m_locked) {
-    instance->resetPins();
-    instance->m_up = true;
+  if (s_instance && !s_instance->m_locked) {
+    s_instance->m_up = true;
+  }
+}
+
+void IRAM_ATTR JoystickController::onJoystickLeft() {
+  if (s_instance && !s_instance->m_locked) {
+    s_instance->m_left = true;
+  }
+}
+
+void IRAM_ATTR JoystickController::onJoystickRight() {
+  if (s_instance && !s_instance->m_locked) {
+    s_instance->m_right = true;
+  }
+}
+
+void IRAM_ATTR JoystickController::onJoystickMid() {
+  if (s_instance && !s_instance->m_locked) {
+    s_instance->m_mid = true;
   }
 }

@@ -4,6 +4,7 @@
 
 #include "SystemControllers.h"
 // Static variables initialization
+static const char* TAG = "MenuController";
 MenuController* MenuController::s_instance = nullptr;
 
 MenuController::MenuController() {
@@ -15,16 +16,11 @@ MenuController::MenuController() {
 }
 
 MenuController::~MenuController() {
-  if (m_menu) {
-    delete m_menu;
-  }
   // MenuItems are allocated dynamically here, so delete if allocated
   delete btnTestMenuItem;
   delete nwTestMenuItem;
   delete gpsTestMenuItem;
 }
-
-Menu* MenuController::getMenu() const { return m_menu; }
 
 void MenuController::init() {
   m_display = &SystemControllers::instance().display;
@@ -34,24 +30,18 @@ void MenuController::init() {
   Serial.println("MenuController: init");
 
   // Create MenuItems with callback lambdas or static callbacks
-  btnTestMenuItem = new MenuItem("Button-Test", &btnTestMenuItemCallback);
-  nwTestMenuItem = new MenuItem("Network-Test", &nwTestMenuItemCallback);
+  // btnTestMenuItem = new MenuItem("Button-Test", &btnTestMenuItemCallback);
+  // nwTestMenuItem = new MenuItem("Network-Test", &nwTestMenuItemCallback);
   gpsTestMenuItem = new MenuItem("GPS-Test", &gpsTestMenuItemCallback);
 
-  m_menuItemList.add(btnTestMenuItem);
-  m_menuItemList.add(nwTestMenuItem);
+  // m_menuItemList.add(btnTestMenuItem);
+  // m_menuItemList.add(nwTestMenuItem);
   m_menuItemList.add(gpsTestMenuItem);
 
-  m_menu = new Menu(m_display, m_joystick, &m_menuItemList);
   m_app->switchToApp(AppID::MENU);
 }
 
-void MenuController::run() {
-  if (m_joystick->locked()) {
-    m_joystick->unlock();
-  }
-  m_menu->display();
-}
+List<MenuItem*>& MenuController::getMenuItemList() { return m_menuItemList; }
 
 // --- CALLBACKS ---
 void MenuController::btnTestMenuItemCallback() {
@@ -68,6 +58,7 @@ void MenuController::nwTestMenuItemCallback() {
 
 void MenuController::gpsTestMenuItemCallback() {
   if (s_instance) {
+    ESP_LOGI(TAG, "switching to gps app...");
     s_instance->m_app->switchToApp(AppID::GPS);
   }
 }

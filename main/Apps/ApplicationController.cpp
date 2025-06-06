@@ -3,6 +3,7 @@
 #include "AppSwitchEvent.h"
 #include "EventDispatcher.h"
 #include "GPSApp.h"
+#include "MenuApp.h"
 #include "SystemControllers.h"
 
 ApplicationController* ApplicationController::instance = nullptr;
@@ -22,19 +23,21 @@ void ApplicationController::init() {
 }
 
 void ApplicationController::setupApps() {
+  m_apps.insert(AppID::MENU, new MenuApp());
   m_apps.insert(AppID::GPS, new GPSApp());
   // TO-DO: add more apps
 
-  auto state = m_apps.find(AppID::GPS);
+  auto state = m_apps.find(AppID::MENU);
   if (state.has_value()) {
     m_stateMachine->setCurrentState(state.value());
   }
 }
 
 void ApplicationController::switchToApp(AppID id) {
+  ESP_LOGI(TAG, "switchToApp requested for id %d", static_cast<int>(id));
   auto app = m_apps.find(id);
   if (app.has_value()) {
-    ESP_LOGI(TAG, "Switching to app...");
+    ESP_LOGI(TAG, "Switching to app with ID %d", static_cast<int>(id));
     m_stateMachine->setCurrentState(app.value());
   } else {
     ESP_LOGW(TAG, "AppID not found in registered apps!");
@@ -50,7 +53,7 @@ void ApplicationController::task(void* pvParameters) {
 
 void ApplicationController::startTask() {
   ESP_LOGI(TAG, "Starting App-Task");
-  xTaskCreatePinnedToCore(ApplicationController::task, "App", 8000, NULL, 1,
+  xTaskCreatePinnedToCore(ApplicationController::task, "App", 12000, NULL, 1,
                           NULL, 1);
 }
 

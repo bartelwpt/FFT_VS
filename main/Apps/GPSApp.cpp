@@ -8,16 +8,15 @@ static const char* TAG = "GPS-App";
 
 GPSApp::GPSApp()
     : m_display(SystemControllers::instance().display),
-      m_joystick(SystemControllers::instance().joystick),
+      m_joystick(JoystickController::getInstance()),
       m_gps(SystemControllers::instance().gps),
       m_stateMachine(SystemControllers::instance().stateMachine),
       m_db(&SystemControllers::db()) {}
 
 void GPSApp::enter() {
   m_display.clearDisplay();
-  m_display.println("GPS-Test");
-  m_display.display();
-
+  m_display.setTextColor(WHITE);
+  m_display.setTextSize(1);
   EventDispatcher::instance().subscribe<GPSDataReceivedEvent>(
       [this](const IEvent& e) {
         auto& gpsEvent = static_cast<const GPSDataReceivedEvent&>(e);
@@ -31,8 +30,10 @@ void GPSApp::enter() {
 }
 
 void GPSApp::update() {
+  ESP_LOGI(TAG, "update");
+  ESP_LOGI(TAG, "received own GPS? %d", m_hasReceivedOwnGPS);
+
   if (!m_hasReceivedOwnGPS) {
-    m_display.clearDisplay();
     m_display.setCursor(10, 10);
     m_display.println("Waiting for GPS...");
     m_display.display();
@@ -41,7 +42,7 @@ void GPSApp::update() {
 
   drawLocation();
 
-  if (m_joystick.mid()) {
+  if (m_joystick.isMidPressed()) {
     ESP_LOGI(TAG, "Dispatch AppSwitchEvent{AppStates::MENU}");
     EventDispatcher::instance().dispatch(AppSwitchEvent{AppID::MENU});
   }

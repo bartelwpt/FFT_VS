@@ -6,7 +6,7 @@
 
 #include "ApplicationController.h"
 #include "JoystickController.h"
-#include "Menu.h"  // Your Menu class header
+#include "MenuItem.h"
 #include "StateMachine.h"
 class MenuController {
  public:
@@ -15,7 +15,8 @@ class MenuController {
 
   void init();
   void run();
-  Menu* getMenu() const;
+
+  List<MenuItem*>& getMenuItemList();
 
  private:
   static void btnTestMenuItemCallback();
@@ -26,7 +27,6 @@ class MenuController {
   JoystickController* m_joystick;
   ApplicationController* m_app;
 
-  Menu* m_menu;
   List<MenuItem*> m_menuItemList;
 
   static MenuController* s_instance;

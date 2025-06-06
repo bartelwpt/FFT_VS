@@ -5,6 +5,7 @@ idf_component_register(
         # Apps
         "Apps/ApplicationController.cpp"
         "Apps/GPSApp.cpp"
+        "Apps/MenuApp.cpp"
 
         # Database
         "Database/GPSDatabase.cpp"
@@ -20,7 +21,6 @@ idf_component_register(
 
         # Menu System
         "Menu/MenuItem.cpp"
-        "Menu/Menu.cpp"
         "Menu/MenuController.cpp"
 
         # State Machine
