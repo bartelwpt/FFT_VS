@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-#include "GPSDataReceivedEvent.h"
+#include "GPSFixAcquiredEvent.h"
 #include "SystemControllers.h"
 static const char *TAG = "GPS";
 GPSController *GPSController::instance = nullptr;
@@ -40,21 +40,23 @@ void GPSController::readFromSerial(HardwareSerial &serial, TinyGPSPlus &gps) {
   }
 }
 void GPSController::processGPSData(TinyGPSPlus &gps) {
+  bool validReturn = false, ageReturn = false;
+
   if (!gps.location.isValid() || gps.location.age() > 2000) {
+    ESP_LOGW(TAG, "No valid GPS Data. Satellites: %" PRIu32,
+             gps.satellites.value());
     return;
   }
 
-  GPSDataReceivedEvent event{SystemControllers::instance().mesh.deviceId(),
-                             instance->bundleData()};
-
-  ESP_LOGI(TAG, "dispatching gps event");
+  GPSFixAcquiredEvent event{instance->bundleData()};
   EventDispatcher::instance().dispatch(event);
 }
 
 const GPSData &GPSController::bundleData() {
   cachedData =
       GPSData(m_gps.location.lng(), m_gps.location.lat(), m_gps.time.hour(),
-              m_gps.time.minute(), m_gps.time.second(), true);
+              m_gps.time.minute(), m_gps.time.second(), m_gps.date.day(),
+              m_gps.date.month(), m_gps.date.year(), true);
   return cachedData;
 }
 

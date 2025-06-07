@@ -7,7 +7,7 @@
 #include "SystemIDs.h"
 
 static const char* TAG = "UserMenuScreen";
-
+static constexpr int dayInSec = 86400;
 using namespace UI;
 
 UserMenuScreen::UserMenuScreen() {
@@ -19,27 +19,35 @@ UserMenuScreen::UserMenuScreen() {
   rootNode->addChild(listView);
 
   EventDispatcher::instance().subscribe<NetworkTopologyChangedEvent>(
-      [this](const IEvent& e) { this->updateListView(e); });
+      [this](const IEvent& e) { this->updateListView(); });
 
   EventDispatcher::instance().subscribe<DatabaseUpdateEvent>(
-      [this](const IEvent& e) { this->updateListView(e); });
+      [this](const IEvent& e) { this->updateListView(); });
 }
 
-void UserMenuScreen::updateListView(const IEvent& e) {
-  ESP_LOGI(TAG, "Received NetworkTopologyChangedEvent");
+void UserMenuScreen::updateListView() {
   auto data = SystemControllers::instance().db().getAllData();
+
   std::vector<std::string> lvEntries = setupListView(data);
+
   listView->setItems(lvEntries);
+  listView->markDirty();
 }
 
 std::vector<std::string> UserMenuScreen::setupListView(
     SimpleMap<uint32_t, GPSData> gpsMap) {
   std::vector<std::string> result;
   for (const auto& [key, value] : gpsMap) {
+    auto nameOpt = deviceIdMap.find(key);
+    if (!nameOpt.has_value()) {
+      continue;
+    }
     std::string displayString =
-        createDisplayString(value, key, deviceIdMap.find(key).value());
+        createDisplayString(value, key, nameOpt.value().c_str());
     result.push_back(displayString);
   }
+
+  // ESP_LOGI(TAG, "ListSize: %d", result.size());
   return result;
 }
 
@@ -52,15 +60,20 @@ std::string UserMenuScreen::createDisplayString(const GPSData& data,
   if (SystemControllers::instance().db().getDeviceData(
           SystemControllers::instance().mesh.deviceId(), &ownDataValue)) {
     // use ownDataValue safely here
-    std::string selected = m_selectedId == id ? ">" : " ";
-    auto distanceInMeter = distance(data, ownDataValue);
+    const char selected = m_selectedId == id ? '>' : ' ';
+    auto dist = distance(data, ownDataValue);
+    auto distString = formattedDistanceString(dist);
+
     std::string name = deviceIdMap.find(id).value();
-    std::string inNetwork =
-        SystemControllers::instance().mesh.isInNetwork(id) ? "+" : "-";
-    char result[32];
-    sprintf(result, "%s%s %s %4" PRIu32 "m %1dd%2dh%2dm", selected.c_str(),
-            name.c_str(), inNetwork.c_str(), distanceInMeter, data.hour,
-            data.minute, data.second);
+    const char inNetwork =
+        SystemControllers::instance().mesh.isInNetwork(id) ? '+' : '-';
+    char result[64];
+
+    auto timeDiff = ownDataValue.timeDifference(data);
+    auto timeString = formattedTimeString(timeDiff);
+
+    sprintf(result, "%c %3s|(%c)|%4sm|%s", selected, name.c_str(), inNetwork,
+            distString.c_str(), timeString.c_str());
     return result;
   } else {
     return "";
@@ -89,4 +102,29 @@ uint32_t UserMenuScreen::distance(const GPSData& a, const GPSData& b) const {
 
   double dist = earthRadiusMeters * c;
   return static_cast<uint32_t>(dist);
+}
+
+std::string UserMenuScreen::formattedDistanceString(uint32_t distance) const {
+  std::string distString = std::to_string(distance);
+  unsigned int zeros = 4 - distString.length();
+  distString.insert(0, zeros, '0');
+  return distString;
+}
+
+std::string UserMenuScreen::formattedTimeString(
+    uint32_t timeDiff /* in seconds */) const {
+  const char timeChar = timeDiff > dayInSec ? 'd'
+                        : timeDiff > 3600   ? 'h'
+                        : timeDiff > 60     ? 'm'
+                                            : 's';
+
+  long timeToPrint = timeChar == 'd'   ? timeDiff / dayInSec
+                     : timeChar == 'h' ? timeDiff / 3600
+                     : timeChar == 'm' ? timeDiff / 60
+                                       : timeDiff;
+
+  std::string timeDiffString = std::to_string(timeToPrint);
+  unsigned int zeros = 2 - timeDiffString.length();
+  timeDiffString.insert(0, zeros, '0');
+  return timeDiffString + timeChar;
 }

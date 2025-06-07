@@ -17,9 +17,11 @@ class UserMenuScreen : public UIScreen {
 
   uint32_t distance(const GPSData& a, const GPSData& b) const;
   std::vector<std::string> setupListView(SimpleMap<uint32_t, GPSData> map);
-  void updateListView(const IEvent& e);
+  void updateListView();
 
  private:
+  std::string formattedDistanceString(uint32_t distance) const;
+  std::string formattedTimeString(uint32_t diff) const;
   ListView* listView;
   uint32_t m_selectedId{SystemControllers::instance().mesh.deviceId()};
 };

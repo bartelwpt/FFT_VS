@@ -1,8 +1,8 @@
+#pragma once
 #include <optional>
 
 #include "EventDispatcher.h"
 #include "GPSData.h"
-#include "GPSDataReceivedEvent.h"
 #include "SimpleMap.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"

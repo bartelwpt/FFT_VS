@@ -11,7 +11,10 @@ void UserMenuApp::enter() {
   SystemControllers::instance().display.clearDisplay();
 }
 
-void UserMenuApp::update() { renderer->render(); }
+void UserMenuApp::update() {
+  view->updateListView();
+  renderer->render();
+}
 
 void UserMenuApp::exit() {
   renderer->clearRoot();

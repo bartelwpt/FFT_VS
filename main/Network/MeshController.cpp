@@ -22,7 +22,6 @@ void MeshController::init() {
 
   EventDispatcher::instance().subscribe<GPSFixAcquiredEvent>(
       [this](const IEvent& e) {
-        ESP_LOGI(TAG, "Received GPS Event");
         const auto& evt = static_cast<const GPSFixAcquiredEvent&>(e);
         data = evt.data;
         sendUpdate = true;
@@ -32,9 +31,8 @@ void MeshController::init() {
 }
 
 void MeshController::receiveCallback(uint32_t from, String& msg) {
-  ESP_LOGI(TAG, "received message from %" PRIu32 ": %s", from, msg.c_str());
   GPSData data = GPSData::deserialize(msg.c_str());
-  GPSDataReceivedEvent event(instance->deviceId(), data);
+  GPSDataReceivedEvent event(from, data);
   EventDispatcher::instance().dispatch(event);
 }
 
@@ -71,7 +69,6 @@ void MeshController::startTask() {
 }
 
 void MeshController::sendBroadcast(const char* msg) {
-  ESP_LOGI(TAG, "Sending broadcast msg: %s", msg);
   instance->m_mesh.sendBroadcast(msg);
 }
 

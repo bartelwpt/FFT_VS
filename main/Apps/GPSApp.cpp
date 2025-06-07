@@ -2,6 +2,7 @@
 
 #include "AppSwitchEvent.h"
 #include "EventDispatcher.h"
+#include "GPSDataReceivedEvent.h"
 #include "SystemControllers.h"
 
 static const char* TAG = "GPS-App";
