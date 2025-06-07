@@ -8,6 +8,7 @@
 #include "JoystickController.h"
 #include "MenuController.h"
 #include "MeshController.h"
+#include "Renderer.h"
 #include "StateMachine.h"
 
 #define SCREEN_WIDTH 128
@@ -16,6 +17,7 @@
 
 struct SystemControllers {
   Adafruit_SSD1306 display;
+  UI::Renderer* renderer;
   JoystickController& joystick;
   GPSController gps;
   MeshController mesh;
@@ -24,14 +26,18 @@ struct SystemControllers {
   ApplicationController app;
 
   // Constructor
+
   SystemControllers()
       : display(SCREEN_WIDTH, SCREEN_HEIGHT),
+        renderer(&UI::Renderer::instance()),
         joystick(JoystickController::getInstance()),
         gps(),
         mesh(),
         stateMachine(),
         menu(),
-        app() {}
+        app() {
+    // do nothing with renderer here
+  }
 
   // Singleton accessor
   static SystemControllers& instance() {

@@ -13,7 +13,9 @@ void StateMachine::setCurrentState(IAppState* state) {
     m_currentState->exit();
     stop();
   }
+
   m_currentState = state;
+
   if (m_currentState) {
     ESP_LOGI(TAG, "Entering new state");
     m_currentState->enter();
@@ -29,7 +31,6 @@ bool StateMachine::running() const { return m_running; }
 
 void StateMachine::update() {
   if (m_running && m_currentState) {
-    ESP_LOGI(TAG, "update");
     m_currentState->update();
   }
 }

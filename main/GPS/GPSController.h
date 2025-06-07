@@ -1,5 +1,4 @@
 #pragma once
-#include <NMEAGPS.h>
 #include <TinyGPSPlus.h>
 
 #include "GPSData.h"

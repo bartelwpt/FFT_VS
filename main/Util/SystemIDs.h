@@ -1,12 +1,15 @@
 #pragma once
 #include <inttypes.h>
 
-#include <string>
+#include "SimpleMap.h"
+const SimpleMap<uint32_t, const char *> deviceIdMap = {{997474133, "YBA"},
+                                                       {530658649, "JNI"}};
 
-const uint32_t DEVICE_0 = 997474133;
-const uint32_t DEVICE_1 = 530658649;
-
-const std::string USER_0 = "Yannic";
-const std::string USER_1 = "Jan";
-
-enum class AppID { MENU = 0, GPS, BUTTON_TEST, NETWORK_TEST };
+enum class AppID {
+  MENU = 0,
+  GPS,
+  BUTTON_TEST,
+  NETWORK_TEST,
+  RENDER_TEST,
+  USER_MENU
+};

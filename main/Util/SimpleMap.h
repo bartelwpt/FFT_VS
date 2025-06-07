@@ -8,6 +8,15 @@
 template <typename Key, typename Value>
 class SimpleMap {
  public:
+  SimpleMap() = default;
+
+  // Constructor to initialize from list
+  SimpleMap(std::initializer_list<std::pair<const Key, Value>> init) {
+    for (const auto& kv : init) {
+      insert(kv.first, kv.second);
+    }
+  }
+
   // Insert or update key-value pair
   void insert(const Key& key, const Value& value) {
     for (auto& kv : data_) {
@@ -45,6 +54,15 @@ class SimpleMap {
   size_t size() const { return data_.size(); }
 
   void clear() { data_.clear(); }
+
+  auto begin() { return data_.begin(); }
+  auto end() { return data_.end(); }
+
+  auto begin() const { return data_.begin(); }
+  auto end() const { return data_.end(); }
+
+  auto cbegin() const { return data_.cbegin(); }
+  auto cend() const { return data_.cend(); }
 
  private:
   std::vector<std::pair<Key, Value>> data_;

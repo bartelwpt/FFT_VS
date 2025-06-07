@@ -14,6 +14,7 @@ extern "C" void app_main() {
     while (true);
   }
 
+  sc.renderer->init(&sc.display);
   sc.joystick.init();
   sc.menu.init();
   sc.mesh.init();

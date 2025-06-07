@@ -15,11 +15,13 @@ class MeshController {
   static void nodeTimeAdjustedCallback(int32_t offset);
   static void sendBroadcast(const char* msg);
   uint32_t deviceId();
+  bool isInNetwork(uint32_t id) const;
 
  private:
   GPSData data;
   bool sendUpdate{false};
   static MeshController* instance;
+  std::list<uint32_t> nodes;
 
   painlessMesh m_mesh;
 };

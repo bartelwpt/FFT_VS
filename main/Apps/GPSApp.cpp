@@ -31,7 +31,6 @@ void GPSApp::enter() {
 
 void GPSApp::update() {
   ESP_LOGI(TAG, "update");
-  ESP_LOGI(TAG, "received own GPS? %d", m_hasReceivedOwnGPS);
 
   if (!m_hasReceivedOwnGPS) {
     m_display.setCursor(10, 10);

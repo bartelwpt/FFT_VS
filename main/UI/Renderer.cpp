@@ -1,39 +1,32 @@
-// #include "Renderer.h"
-// #include <Window.h>
-// #include <Rectangle.h>
-// #include <Text.h>
+#include "Renderer.h"
 
-// Renderer::Renderer(Adafruit_SSD1306 *display, UI::Window *parent) :
-// m_display(display), m_parent(parent)
-// {
-//   Serial.println("Renderer created");
-// }
+#include "SystemControllers.h"
+#include "esp_log.h"
+using namespace UI;
 
-// void Renderer::render() {
-//   UI::Element * ePtr;
-//   ePtr = dynamic_cast<UI::Element*>(m_parent);
-//   // auto renderObject = m_parent;
-//   while (ePtr != nullptr) {
-//     if (auto * castObject = dynamic_cast<UI::Window*>(ePtr); castObject !=
-//     nullptr) {
-//       if (castObject->dirty())
-//       {
-//         // reset display by drawing a black rectangle
-//         m_display->fillRect(castObject->x(), castObject->y(),
-//         castObject->w(), castObject->h(),
-//         static_cast<uint16_t>(UI::Element::Color::MUI_BLACK));
-//       }
-//     }
+static const char* TAG = "Renderer";
 
-//     else if (auto * castObject = dynamic_cast<UI::Rectangle*>(ePtr);
-//     castObject != nullptr)
-//     {
+Renderer* Renderer::s_instance = nullptr;
+Renderer::Renderer() { s_instance = this; }
 
-//     }
-//   }
-// }
+void Renderer::init(Adafruit_SSD1306* display) { m_display = display; }
+void Renderer::setRoot(Element* r) { m_root = r; }
 
-// void Renderer::resetElement(UI::Element * e)
-// {
+Element* Renderer::root() { return m_root; }
 
-// }
+void Renderer::render() {
+  if (!m_root || !m_display) {
+    ESP_LOGI(TAG, "m_root or m_display not initialized, interrupt rendering");
+    return;
+  }
+
+  m_root->update();
+  m_display->display();
+}
+
+Renderer& Renderer::instance() {
+  static Renderer instance;
+  return instance;
+}
+
+void Renderer::clearRoot() { m_root = nullptr; }

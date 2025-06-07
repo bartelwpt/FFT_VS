@@ -6,6 +6,11 @@ idf_component_register(
         "Apps/ApplicationController.cpp"
         "Apps/GPSApp.cpp"
         "Apps/MenuApp.cpp"
+        "Apps/RendererTest.cpp"
+        "Apps/UserMenuApp.cpp"
+
+        # Apps / StateMachine
+        "Apps/StateMachine/StateMachine.cpp"
 
         # Database
         "Database/GPSDatabase.cpp"
@@ -23,24 +28,24 @@ idf_component_register(
         "Menu/MenuItem.cpp"
         "Menu/MenuController.cpp"
 
-        # State Machine
-        "StateMachine/StateMachine.cpp"
-        "StateMachine/State.cpp"
-
         # UI
         "UI/Renderer.cpp"
+        "UI/Screens/RendererTestView.cpp"
+        "UI/Screens/UIScreen.cpp"
+        "UI/Screens/UserMenuScreen.cpp"
 
     INCLUDE_DIRS 
         "Apps"
+        "Apps/StateMachine"
         "Database"
         "GPS"
         "Joystick"
         "Network"
         "Menu"
-        "StateMachine"
         "Event"
         "Util"
         "UI"
+        "UI/Screens"
 
     REQUIRES
         arduino-esp32 
@@ -49,5 +54,4 @@ idf_component_register(
         TinyGPSPlus
         painlessMesh
         json
-        NeoGPS
 )

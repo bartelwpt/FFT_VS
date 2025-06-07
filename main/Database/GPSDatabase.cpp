@@ -1,10 +1,13 @@
 #include "GPSDatabase.h"
 
+#include "DatabaseUpdateEvent.h"
 #include "esp_log.h"
+static const char* TAG = "GPSDB";
 GPSDatabase::GPSDatabase() : maxDevices(30) {
   mutex = xSemaphoreCreateMutex();
   EventDispatcher::instance().subscribe<GPSDataReceivedEvent>(
       [this](const IEvent& e) {
+        ESP_LOGI(TAG, "Received GPS event");
         auto const& gpsEvent = static_cast<const GPSDataReceivedEvent&>(e);
         this->updateDeviceData(gpsEvent.deviceId, gpsEvent.data);
       });
@@ -29,6 +32,7 @@ bool GPSDatabase::getDeviceData(const DeviceID& id, GPSData* data) {
     auto result = deviceDataMap.find(id);
     if (result.has_value()) {
       *data = result.value();
+      EventDispatcher::instance().dispatch(DatabaseUpdateEvent());
       xSemaphoreGive(mutex);
       return true;
     } else {

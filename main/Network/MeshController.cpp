@@ -3,6 +3,7 @@
 #include "GPSController.h"
 #include "GPSDataReceivedEvent.h"
 #include "GPSFixAcquiredEvent.h"
+#include "NetworkTopologyChangedEvent.h"
 
 MeshController* MeshController::instance = nullptr;
 static const char* TAG = "MESH";
@@ -26,6 +27,8 @@ void MeshController::init() {
         data = evt.data;
         sendUpdate = true;
       });
+
+  nodes = m_mesh.getNodeList();
 }
 
 void MeshController::receiveCallback(uint32_t from, String& msg) {
@@ -42,6 +45,8 @@ void MeshController::newConnectionCallback(uint32_t nodeId) {
 void MeshController::changedConnectionCallback() {
   ESP_LOGI(TAG, "Changed connections %s",
            instance->m_mesh.subConnectionJson().c_str());
+  instance->nodes = instance->m_mesh.getNodeList();
+  EventDispatcher::instance().dispatch(NetworkTopologyChangedEvent());
 }
 
 void MeshController::nodeTimeAdjustedCallback(int32_t offset) {
@@ -71,3 +76,10 @@ void MeshController::sendBroadcast(const char* msg) {
 }
 
 uint32_t MeshController::deviceId() { return m_mesh.getNodeId(); }
+
+bool MeshController::isInNetwork(uint32_t id) const {
+  for (auto nodeId : nodes) {
+    if (nodeId == id) return true;
+  }
+  return false;
+}

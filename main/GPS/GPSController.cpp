@@ -46,6 +46,8 @@ void GPSController::processGPSData(TinyGPSPlus &gps) {
 
   GPSDataReceivedEvent event{SystemControllers::instance().mesh.deviceId(),
                              instance->bundleData()};
+
+  ESP_LOGI(TAG, "dispatching gps event");
   EventDispatcher::instance().dispatch(event);
 }
 
